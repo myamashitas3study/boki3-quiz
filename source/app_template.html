@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>簿記3級 過去問トレーニング 500問</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    background: linear-gradient(160deg, #1d5a96 0%, #0d2f52 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+    color: #333;
+  }
+  .app { width: 100%; max-width: 560px; }
+
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px 20px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    margin-bottom: 16px;
+  }
+
+  /* ===== スタート画面 ===== */
+  .title { text-align: center; color: #fff; padding: 20px 0 6px; }
+  .title h1 { font-size: 26px; letter-spacing: 2px; }
+  .title p { font-size: 13px; opacity: 0.85; margin-top: 6px; }
+  .start-card h2 { font-size: 15px; color: #14528f; margin: 14px 0 8px; }
+  .start-card h2:first-child { margin-top: 0; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    border: 2px solid #dde7e3;
+    background: #f7f9f8;
+    color: #444;
+    border-radius: 24px;
+    padding: 10px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .chip.sel { background: #2277cc; border-color: #2277cc; color: #fff; font-weight: bold; }
+
+  .btn {
+    display: block; width: 100%;
+    padding: 16px;
+    border: none; border-radius: 12px;
+    font-size: 17px; font-weight: bold;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: transform 0.1s;
+    font-family: inherit;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-main { background: #2277cc; color: #fff; }
+  .btn-sub  { background: #e7f0fa; color: #14528f; }
+  .btn:disabled { opacity: 0.45; }
+
+  .banner {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    background: #fff4dc;
+    border: 1px solid #f0dfb8;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-top: 14px;
+    font-size: 13px;
+    color: #7a5a17;
+  }
+  .banner button {
+    border: 1px solid #d8b96a;
+    background: #fff;
+    color: #7a5a17;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+
+  /* ===== 問題画面 ===== */
+  .status { display: flex; justify-content: space-between; align-items: center; color: #fff; font-size: 14px; padding: 4px 4px 10px; }
+  .progress-bar { height: 8px; background: rgba(255,255,255,0.25); border-radius: 4px; overflow: hidden; margin-bottom: 14px; }
+  .progress-fill { height: 100%; background: #ffd54f; width: 0%; transition: width 0.3s; }
+
+  .tag {
+    display: inline-block;
+    background: #e7f0fa; color: #14528f;
+    font-size: 12px; font-weight: bold;
+    padding: 4px 12px; border-radius: 20px;
+    margin-bottom: 12px; margin-right: 6px;
+  }
+  .question { font-size: 16px; line-height: 1.8; margin-bottom: 18px; font-weight: 500; white-space: pre-line; }
+
+  .choice {
+    display: block; width: 100%;
+    text-align: left;
+    background: #f7f9f8;
+    border: 2px solid #dde7e3;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 10px;
+    cursor: pointer;
+    white-space: pre-line;
+    font-family: inherit;
+    color: #333;
+  }
+  .choice:active { background: #eef4f1; }
+  .choice.correct { background: #e3f6e8; border-color: #34a853; font-weight: bold; }
+  .choice.wrong   { background: #fdeaea; border-color: #ea4335; }
+  .choice:disabled { cursor: default; opacity: 1; color: #333; }
+  .choice.faded:disabled { opacity: 0.5; }
+
+  .feedback { border-radius: 12px; padding: 16px; margin-top: 6px; font-size: 14px; line-height: 1.8; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok { background: #e3f6e8; }
+  .feedback.ng { background: #fdeaea; }
+  .feedback .mark { font-size: 18px; font-weight: bold; margin-bottom: 6px; }
+  .feedback.ok .mark { color: #1e7e34; }
+  .feedback.ng .mark { color: #c62828; }
+
+  .quit { text-align: center; margin-top: 4px; }
+  .quit button { background: none; border: none; color: rgba(255,255,255,0.7); font-size: 13px; text-decoration: underline; cursor: pointer; padding: 8px; font-family: inherit; }
+
+  /* ===== 結果画面 ===== */
+  .result-score { text-align: center; padding: 12px 0 20px; }
+  .result-score .num { font-size: 52px; font-weight: bold; color: #14528f; }
+  .result-score .num small { font-size: 20px; color: #888; }
+  .result-score .msg { font-size: 16px; margin-top: 8px; color: #444; }
+  .review-item { border-top: 1px solid #e5eae8; padding: 14px 4px; font-size: 14px; line-height: 1.7; }
+  .review-item .rq { font-weight: bold; margin-bottom: 6px; white-space: pre-line; }
+  .review-item .ra { color: #1e7e34; white-space: pre-line; }
+  .review-title { font-size: 15px; font-weight: bold; color: #c62828; margin-bottom: 4px; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="title">
+    <h1>📘 簿記3級</h1>
+    <p id="subtitle">過去問形式トレーニング</p>
+  </div>
+
+  <!-- スタート画面 -->
+  <div id="screen-start">
+    <div class="card start-card">
+      <h2>1. 分野を選ぶ</h2>
+      <div class="chips" id="cat-chips"></div>
+      <h2>2. 問題数を選ぶ</h2>
+      <div class="chips" id="num-chips"></div>
+      <button class="btn btn-main" onclick="startQuiz()">スタート ▶</button>
+      <button class="btn btn-sub" id="btn-review" onclick="startReview()"></button>
+      <div class="banner hidden" id="wrong-banner">
+        <span id="wrong-banner-text"></span>
+        <button onclick="resetWrong()">リセット</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 問題画面 -->
+  <div id="screen-quiz" class="hidden">
+    <div class="status">
+      <span id="q-count"></span>
+      <span id="q-score"></span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+    <div class="card">
+      <span class="tag" id="q-tag"></span><span class="tag" id="q-tag2"></span>
+      <div class="question" id="q-text"></div>
+      <div id="q-choices"></div>
+      <div class="feedback" id="feedback">
+        <div class="mark" id="fb-mark"></div>
+        <div id="fb-text"></div>
+      </div>
+      <button class="btn btn-main hidden" id="btn-next" onclick="nextQuestion()">次の問題へ ▶</button>
+    </div>
+    <div class="quit"><button onclick="if(confirm('中断してトップに戻りますか?')) location.reload()">中断する</button></div>
+  </div>
+
+  <!-- 結果画面 -->
+  <div id="screen-result" class="hidden">
+    <div class="card">
+      <div class="result-score">
+        <div class="num"><span id="r-score"></span><small> / <span id="r-total"></span>問</small></div>
+        <div class="msg" id="r-msg"></div>
+      </div>
+      <button class="btn btn-main" onclick="location.reload()">トップに戻る</button>
+    </div>
+    <div class="card" id="review-card">
+      <div class="review-title">✍️ 間違えた問題の復習</div>
+      <div id="review-list"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// 問題データ(過去問形式のオリジナル問題)
+// c: 分野 / t: 論点 / q: 問題文 / ch: 選択肢(先頭が正解) / e: 解説
+// ============================================================
+const QUESTIONS = __QUESTIONS_JSON__;
+
+// ============================================================
+// アプリ本体
+// ============================================================
+const VERSION = "v3-500";
+const WRONG_KEY = "boki3-wrong-" + VERSION;
+const CATS = ["すべて", "仕訳", "決算", "帳簿・理論"];
+const NUMS = [10, 30, 50];
+
+let quiz = [], current = 0, score = 0, wrongList = [];
+let selCat = "すべて", selNum = 10;
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function loadWrong() {
+  try { return JSON.parse(localStorage.getItem(WRONG_KEY)) || []; } catch (e) { return []; }
+}
+function saveWrong(list) {
+  try { localStorage.setItem(WRONG_KEY, JSON.stringify(list)); } catch (e) {}
+}
+function markWrong(idx, isWrong) {
+  let list = loadWrong();
+  if (isWrong) { if (!list.includes(idx)) list.push(idx); }
+  else { list = list.filter(x => x !== idx); }
+  saveWrong(list);
+}
+
+function catCount(cat) {
+  return cat === "すべて" ? QUESTIONS.length : QUESTIONS.filter(q => q.c === cat).length;
+}
+
+function renderStart() {
+  document.getElementById("subtitle").textContent = "過去問形式トレーニング・全" + QUESTIONS.length + "問収録";
+  const catBox = document.getElementById("cat-chips");
+  catBox.innerHTML = "";
+  CATS.forEach(c => {
+    const b = document.createElement("button");
+    b.className = "chip" + (c === selCat ? " sel" : "");
+    b.textContent = c + " (" + catCount(c) + ")";
+    b.onclick = () => { selCat = c; renderStart(); };
+    catBox.appendChild(b);
+  });
+  const numBox = document.getElementById("num-chips");
+  numBox.innerHTML = "";
+  NUMS.forEach(n => {
+    const b = document.createElement("button");
+    b.className = "chip" + (n === selNum ? " sel" : "");
+    b.textContent = n + "問";
+    b.onclick = () => { selNum = n; renderStart(); };
+    numBox.appendChild(b);
+  });
+  const wrong = loadWrong();
+  const rb = document.getElementById("btn-review");
+  rb.textContent = "🔥 苦手問題だけ復習する(" + wrong.length + "問)";
+  rb.disabled = wrong.length === 0;
+  const banner = document.getElementById("wrong-banner");
+  if (wrong.length > 0) {
+    document.getElementById("wrong-banner-text").textContent = "苦手問題が" + wrong.length + "問たまっています。記録を消してやり直せます。";
+    banner.classList.remove("hidden");
+  } else {
+    banner.classList.add("hidden");
+  }
+}
+
+function resetWrong() {
+  if (confirm("苦手問題の記録をすべてリセットしますか?\n(これまでに間違えた問題のリストが消えます)")) {
+    saveWrong([]);
+    renderStart();
+  }
+}
+
+function buildQuizItem(q, idx) {
+  const order = shuffle([0, 1, 2, 3]);
+  return {
+    idx: idx, c: q.c, t: q.t, q: q.q, e: q.e,
+    ch: order.map(i => q.ch[i]),
+    a: order.indexOf(0)
+  };
+}
+
+function startQuiz() {
+  const pool = [];
+  QUESTIONS.forEach((q, i) => {
+    if (selCat === "すべて" || q.c === selCat) pool.push(buildQuizItem(q, i));
+  });
+  quiz = shuffle(pool).slice(0, Math.min(selNum, pool.length));
+  beginQuiz();
+}
+
+function startReview() {
+  const wrong = loadWrong();
+  const pool = wrong.filter(i => QUESTIONS[i]).map(i => buildQuizItem(QUESTIONS[i], i));
+  if (pool.length === 0) return;
+  quiz = shuffle(pool);
+  beginQuiz();
+}
+
+function beginQuiz() {
+  current = 0; score = 0; wrongList = [];
+  document.getElementById("screen-start").classList.add("hidden");
+  document.getElementById("screen-quiz").classList.remove("hidden");
+  showQuestion();
+}
+
+function showQuestion() {
+  const q = quiz[current];
+  document.getElementById("q-count").textContent = "第" + (current + 1) + "問 / 全" + quiz.length + "問";
+  document.getElementById("q-score").textContent = "正解 " + score;
+  document.getElementById("progress").style.width = (current / quiz.length * 100) + "%";
+  document.getElementById("q-tag").textContent = q.c;
+  document.getElementById("q-tag2").textContent = q.t || "";
+  document.getElementById("q-text").textContent = q.q;
+
+  const box = document.getElementById("q-choices");
+  box.innerHTML = "";
+  q.ch.forEach((text, i) => {
+    const btn = document.createElement("button");
+    btn.className = "choice";
+    btn.textContent = "アイウエ"[i] + ". " + text;
+    btn.onclick = () => answer(i, btn);
+    box.appendChild(btn);
+  });
+
+  document.getElementById("feedback").className = "feedback";
+  document.getElementById("btn-next").classList.add("hidden");
+}
+
+function answer(i, btn) {
+  const q = quiz[current];
+  const buttons = document.querySelectorAll(".choice");
+  buttons.forEach((b, idx) => {
+    b.disabled = true;
+    if (idx === q.a) b.classList.add("correct");
+    else if (b === btn) b.classList.add("wrong");
+    else b.classList.add("faded");
+  });
+
+  const ok = (i === q.a);
+  if (ok) { score++; } else { wrongList.push(q); }
+  markWrong(q.idx, !ok);
+
+  const fb = document.getElementById("feedback");
+  document.getElementById("fb-mark").textContent = ok ? "⭕ 正解!" : "❌ 不正解…";
+  document.getElementById("fb-text").textContent = q.e;
+  fb.classList.add("show", ok ? "ok" : "ng");
+
+  document.getElementById("q-score").textContent = "正解 " + score;
+  const nextBtn = document.getElementById("btn-next");
+  nextBtn.textContent = (current + 1 < quiz.length) ? "次の問題へ ▶" : "結果を見る 🏁";
+  nextBtn.classList.remove("hidden");
+  nextBtn.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function nextQuestion() {
+  current++;
+  if (current < quiz.length) {
+    showQuestion();
+    window.scrollTo(0, 0);
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  document.getElementById("screen-quiz").classList.add("hidden");
+  document.getElementById("screen-result").classList.remove("hidden");
+  document.getElementById("r-score").textContent = score;
+  document.getElementById("r-total").textContent = quiz.length;
+
+  const rate = score / quiz.length;
+  let msg;
+  if (rate === 1)        msg = "🎉 全問正解!すばらしい!";
+  else if (rate >= 0.7)  msg = "💮 合格ライン(70%)クリア!この調子!";
+  else if (rate >= 0.5)  msg = "📖 あと少し!間違えた問題を復習しよう";
+  else                   msg = "🌱 これから伸びる!繰り返しが大切です";
+  document.getElementById("r-msg").textContent = msg;
+
+  const list = document.getElementById("review-list");
+  if (wrongList.length === 0) {
+    document.getElementById("review-card").classList.add("hidden");
+  } else {
+    wrongList.forEach((q, i) => {
+      const div = document.createElement("div");
+      div.className = "review-item";
+      div.innerHTML =
+        '<div class="rq">' + (i + 1) + ". " + escapeHtml(q.q) + '</div>' +
+        '<div class="ra">正解:' + escapeHtml(q.ch[q.a]) + '</div>' +
+        '<div>' + escapeHtml(q.e) + '</div>';
+      list.appendChild(div);
+    });
+  }
+  window.scrollTo(0, 0);
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+renderStart();
+</script>
+</body>
+</html>
